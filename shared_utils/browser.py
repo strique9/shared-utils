@@ -16,18 +16,49 @@ DEFAULT_USER_AGENT = (
 
 
 @contextmanager
-def create_browser(headless=True, user_agent=DEFAULT_USER_AGENT):
+def create_browser(
+    headless=True,
+    user_agent=DEFAULT_USER_AGENT,
+    downloads_path=None,
+    http_credentials=None,
+    accept_downloads=False,
+):
     """Launch a Chromium browser with a realistic user agent.
 
     Yields (browser, page) tuple. Cleans up on exit.
 
+    Args:
+        headless: Run browser without a visible window.
+        user_agent: User-Agent header string.
+        downloads_path: Directory for browser downloads.
+        http_credentials: Dict with "username" and "password" for HTTP auth
+                          (e.g. IIS/NTLM sites).
+        accept_downloads: Whether to accept file downloads automatically.
+
     Usage:
         with create_browser() as (browser, page):
             page.goto("https://example.com")
+
+        with create_browser(
+            http_credentials={"username": "u", "password": "p"},
+            accept_downloads=True,
+            downloads_path="/tmp/dl",
+        ) as (browser, page):
+            page.goto("https://protected-site.com")
     """
+    launch_kwargs = {"headless": headless}
+    if downloads_path:
+        launch_kwargs["downloads_path"] = downloads_path
+
+    context_kwargs = {"user_agent": user_agent}
+    if http_credentials:
+        context_kwargs["http_credentials"] = http_credentials
+    if accept_downloads:
+        context_kwargs["accept_downloads"] = True
+
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=headless)
-        context = browser.new_context(user_agent=user_agent)
+        browser = p.chromium.launch(**launch_kwargs)
+        context = browser.new_context(**context_kwargs)
         page = context.new_page()
         try:
             yield browser, page
