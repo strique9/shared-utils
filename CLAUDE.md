@@ -6,6 +6,7 @@ A shared Python package providing reusable utilities across projects. Install in
 ## Modules
 - **secrets_manager** — 1Password CLI (`op`) wrapper for secure credential retrieval
 - **browser** — Playwright-based browser automation (Auth0 login, headless Chromium)
+- **me_portal** — ME Franchisee Portal session manager (login, report widgets, SSRS export)
 
 ## Projects Using This
 - ME Operator Intelligence Dashboard (`~/Documents/projects/ME Operator Intelligence/Dashboard/`)
