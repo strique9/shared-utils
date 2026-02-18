@@ -30,13 +30,24 @@ EXPORT_BUTTON_ID = (
 class MEPortalSession:
     """Context manager for authenticated ME Franchisee Portal sessions.
 
+    Args:
+        headless: Run browser without a visible window.
+        downloads_path: Directory for browser downloads.
+        op_refs: 1Password secret references (used when credentials is None).
+        credentials: Pre-resolved {"username": ..., "password": ...} dict.
+            When provided, bypasses 1Password entirely. Useful for cloud
+            deployments where credentials come from environment variables.
+        timeout: Default page timeout in milliseconds.
+
     Usage::
 
+        # Local dev (1Password with Touch ID):
         with MEPortalSession(headless=False) as session:
-            rp = session.open_report("WebForms/Report.aspx?Path=...", "Meevo Operations")
-            session.select_multiselect_all(rp, 0)
-            session.run_report(rp)
-            session.export_csv(rp, "/tmp", "report.csv")
+            ...
+
+        # Cloud (env var credentials):
+        with MEPortalSession(headless=True, credentials={"username": u, "password": p}) as session:
+            ...
     """
 
     def __init__(
@@ -44,11 +55,13 @@ class MEPortalSession:
         headless: bool = False,
         downloads_path: str | None = None,
         op_refs: dict[str, str] | None = None,
+        credentials: dict[str, str] | None = None,
         timeout: int = 60000,
     ):
         self.headless = headless
         self.downloads_path = downloads_path
         self.op_refs = op_refs or DEFAULT_OP_REFS
+        self._credentials = credentials
         self.timeout = timeout
         self._browser_cm = None
         self._browser = None
@@ -56,7 +69,7 @@ class MEPortalSession:
         self._secrets: dict[str, str] | None = None
 
     def __enter__(self):
-        self._secrets = get_secrets(self.op_refs)
+        self._secrets = self._credentials or get_secrets(self.op_refs)
         self._browser_cm = create_browser(
             headless=self.headless,
             downloads_path=self.downloads_path,
