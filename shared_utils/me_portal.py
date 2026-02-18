@@ -34,9 +34,11 @@ class MEPortalSession:
         headless: Run browser without a visible window.
         downloads_path: Directory for browser downloads.
         op_refs: 1Password secret references (used when credentials is None).
-        credentials: Pre-resolved {"username": ..., "password": ...} dict.
-            When provided, bypasses 1Password entirely. Useful for cloud
-            deployments where credentials come from environment variables.
+        credentials: Pre-resolved {"username": ..., "password": ...} dict
+            for Auth0 login. When provided, bypasses 1Password entirely.
+        http_credentials: Separate {"username": ..., "password": ...} dict
+            for the IIS HTTP auth layer. If None, falls back to ``credentials``
+            (backward-compatible for setups where one set works for both).
         timeout: Default page timeout in milliseconds.
 
     Usage::
@@ -45,8 +47,12 @@ class MEPortalSession:
         with MEPortalSession(headless=False) as session:
             ...
 
-        # Cloud (env var credentials):
-        with MEPortalSession(headless=True, credentials={"username": u, "password": p}) as session:
+        # Cloud (separate HTTP + Auth0 credentials):
+        with MEPortalSession(
+            headless=True,
+            http_credentials={"username": "patrick.strickland", "password": "..."},
+            credentials={"username": "patrick.strickland@massageenvy.com", "password": "..."},
+        ) as session:
             ...
     """
 
@@ -56,12 +62,14 @@ class MEPortalSession:
         downloads_path: str | None = None,
         op_refs: dict[str, str] | None = None,
         credentials: dict[str, str] | None = None,
+        http_credentials: dict[str, str] | None = None,
         timeout: int = 60000,
     ):
         self.headless = headless
         self.downloads_path = downloads_path
         self.op_refs = op_refs or DEFAULT_OP_REFS
         self._credentials = credentials
+        self._http_credentials = http_credentials
         self.timeout = timeout
         self._browser_cm = None
         self._browser = None
@@ -70,12 +78,13 @@ class MEPortalSession:
 
     def __enter__(self):
         self._secrets = self._credentials or get_secrets(self.op_refs)
+        http_creds = self._http_credentials or self._secrets
         self._browser_cm = create_browser(
             headless=self.headless,
             downloads_path=self.downloads_path,
             http_credentials={
-                "username": self._secrets["username"],
-                "password": self._secrets["password"],
+                "username": http_creds["username"],
+                "password": http_creds["password"],
             },
             accept_downloads=True,
         )
