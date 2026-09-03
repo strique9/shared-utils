@@ -1,19 +1,28 @@
 # Shared Utilities
 
 ## What This Is
-A shared Python package providing reusable utilities across projects. Install in any project with `pip install -e ~/Documents/projects/shared-utils/`.
+A shared Python package used by every app on the Mac Studio (Bearing, Purser, Meridian, The Binnacle). Installed **editable from the local checkout** so all four venvs run the same source:
+
+```bash
+venv/bin/pip install -e ../shared-utils            # credentials only
+venv/bin/pip install -e "../shared-utils[browser]"  # + Playwright automation
+```
 
 ## Modules
-- **secrets_manager** — 1Password CLI (`op`) wrapper for secure credential retrieval
-- **browser** — Playwright-based browser automation (Auth0 login, headless Chromium)
-- **me_portal** — ME Franchisee Portal session manager (login, report widgets, SSRS export)
+- **binnacle_auth** — THE credential path. Per-app 1Password Service Account token (`~/.config/binnacle/tokens/<app>`, 0600) → 1Password SDK → The Binnacle vault → item fields. See README.md.
+- **browser** — Playwright helpers (`create_browser`, `auth0_login`).
+- **me_portal** — ME Franchisee Portal session (retired in Bearing; kept for deliberate historical reloads). Requires explicit `credentials=`; it never reads a credential store itself.
 
-## Projects Using This
-- ME Operator Intelligence Dashboard (`~/Documents/projects/ME Operator Intelligence/Dashboard/`)
+## Rules
+- No app reads a credential from `.env`, a launchd plist, a shell export, or the macOS Keychain. `binnacle_auth` is the only path, and it has no fallback.
+- The SDK access is read-only. Nothing here creates or updates vault items.
+- Never log a token or a field value. Item titles only.
+- `binnacle-auth doctor` (installed console script) is the mechanical check. Run it before assuming a credential problem is elsewhere.
 
-## Key Facts
-- **Install:** `pip install -e ~/Documents/projects/shared-utils/`
-- **Install with browser:** `pip install -e ~/Documents/projects/shared-utils/[browser]`
-- **Post-install (browser):** `playwright install chromium` — required once after install
-- **Requires:** 1Password CLI (`op`) installed and signed in (`op signin`)
-- **Gotchas:** User must run `op signin` at least once before use
+## Tests
+```bash
+../Purser/venv/bin/python -m pytest -q tests   # no venv of its own; any app venv works
+```
+
+## Remote
+`origin` is `github.com/strique9/shared-utils`. Local checkouts are the runtime source; push after changes so a fresh clone matches.

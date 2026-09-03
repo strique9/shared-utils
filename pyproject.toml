@@ -4,10 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "shared-utils"
-version = "0.1.0"
-description = "Shared utilities across projects"
+version = "0.2.0"
+description = "Shared utilities across The Binnacle apps: credential access, browser automation"
 requires-python = ">=3.10"
+dependencies = ["onepassword-sdk>=0.1.7"]
 
 [project.optional-dependencies]
 browser = ["playwright>=1.40"]
 dev = ["pytest"]
+
+[project.scripts]
+binnacle-auth = "shared_utils.binnacle_auth:main"
+
+[tool.setuptools.packages.find]
+include = ["shared_utils*"]
