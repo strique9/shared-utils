@@ -80,13 +80,6 @@ def test_path_rejects_traversal(tmp_path):
 
 # -- OnePasswordClient with a mocked SDK --------------------------------------
 
-def _async_iter(items):
-    async def gen():
-        for item in items:
-            yield item
-    return gen()
-
-
 def _field(title, value):
     f = MagicMock()
     f.title = title
@@ -109,8 +102,8 @@ def _client_with(items: dict[str, dict[str, str]]):
         f"id-{i}": MagicMock(fields=[_field(k, v) for k, v in fields.items()])
         for i, fields in enumerate(items.values())
     }
-    op.vaults.list_all = AsyncMock(return_value=_async_iter([_overview("The Binnacle", "vault-1")]))
-    op.items.list_all = AsyncMock(side_effect=lambda _vid: _async_iter(overviews))
+    op.vaults.list = AsyncMock(return_value=[_overview("The Binnacle", "vault-1")])
+    op.items.list = AsyncMock(return_value=overviews)
     op.items.get = AsyncMock(side_effect=lambda _vid, item_id: by_id[item_id])
     client = OnePasswordClient("purser")
     client._op_client = op
@@ -157,7 +150,7 @@ def test_get_field_is_case_insensitive_and_strict():
 
 def test_vault_not_visible():
     op = AsyncMock()
-    op.vaults.list_all = AsyncMock(return_value=_async_iter([_overview("Other", "v")]))
+    op.vaults.list = AsyncMock(return_value=[_overview("Other", "v")])
     client = OnePasswordClient("bearing")
     client._op_client = op
     with pytest.raises(CredentialError) as exc:

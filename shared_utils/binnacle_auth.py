@@ -160,7 +160,7 @@ class OnePasswordClient:
                 from onepassword import Client
             except ImportError as e:  # pragma: no cover - environment problem
                 raise CredentialError(
-                    "onepassword SDK not installed. Run: pip install onepassword-sdk"
+                    "onepassword SDK not installed. Run: pip install -e ../shared-utils"
                 ) from e
             token = self.token_store.read(self.app)
             try:
@@ -180,7 +180,7 @@ class OnePasswordClient:
     async def _resolve_vault_id(self) -> str:
         if self._vault_id is None:
             client = await self._get_op_client()
-            async for vault in await client.vaults.list_all():
+            for vault in await client.vaults.list():
                 if vault.title == self.vault:
                     self._vault_id = vault.id
                     break
@@ -196,7 +196,7 @@ class OnePasswordClient:
             client = await self._get_op_client()
             vault_id = await self._resolve_vault_id()
             ids: dict[str, str] = {}
-            async for overview in await client.items.list_all(vault_id):
+            for overview in await client.items.list(vault_id):
                 ids.setdefault(overview.title, overview.id)
             self._item_ids = ids
         return self._item_ids

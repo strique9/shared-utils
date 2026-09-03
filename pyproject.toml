@@ -7,7 +7,8 @@ name = "shared-utils"
 version = "0.2.0"
 description = "Shared utilities across The Binnacle apps: credential access, browser automation"
 requires-python = ">=3.10"
-dependencies = ["onepassword-sdk>=0.1.7"]
+# Pinned here, once, for every app. The SDK renamed list_all() to list() in 0.2+.
+dependencies = ["onepassword-sdk==0.4.1"]
 
 [project.optional-dependencies]
 browser = ["playwright>=1.40"]
