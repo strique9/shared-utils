@@ -204,18 +204,19 @@ def test_cli_bootstrap_provisions_siblings(tmp_path, monkeypatch, capsys):
 
     vault = {"Service Account Auth Token: Bearing": {"credential": "ops_bearing"},
              "Service Account Auth Token: Meridian": {"credential": "ops_meridian"},
-             "Service Account Auth Token: Binnacle": {"credential": "ops_binnacle"}}
+             "Service Account Auth Token: Binnacle": {"credential": "ops_binnacle"},
+             "Service Account Auth Token: Tally": {"credential": "ops_tally"}}
 
     async def fake_get_field(self, title, field_title):
         return vault[title][field_title]
 
     async def fake_check(self, expected_items=None):
-        return {"ok": True, "item_count": 3, "app": self.app, "vault": self.vault,
+        return {"ok": True, "item_count": 4, "app": self.app, "vault": self.vault,
                 "token_path": str(self.token_store.path(self.app))}
 
     monkeypatch.setattr(ba.OnePasswordClient, "get_field", fake_get_field)
     monkeypatch.setattr(ba.OnePasswordClient, "check", fake_check)
     assert main(["bootstrap", "--via", "purser"]) == 0
-    assert sorted(TokenStore().available()) == ["bearing", "binnacle", "meridian", "purser"]
+    assert sorted(TokenStore().available()) == ["bearing", "binnacle", "meridian", "purser", "tally"]
     assert (tmp_path / "bearing").read_text().strip() == "ops_bearing"
     assert "[OK]" in capsys.readouterr().out
