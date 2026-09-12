@@ -57,7 +57,7 @@ TOKEN_DIR = Path("~/.config/binnacle/tokens").expanduser()
 
 # Every app that reads the vault. Adding an app = create its Service Account in
 # 1Password (read access to The Binnacle vault), then `binnacle-auth store --app <name>`.
-APPS = ("binnacle", "bearing", "meridian", "purser", "tally")
+APPS = ("binnacle", "bearing", "meridian", "purser", "tally", "madewild")
 
 # 1Password Service Account tokens carry this prefix. Rejecting anything else
 # stops a pasted password or op:// reference from landing in the token file.
