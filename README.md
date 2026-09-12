@@ -24,7 +24,7 @@ servers. The reader refuses any file that is not owned by the user with mode
 
 1. In 1Password (web, Developer → Service Accounts) each app has a Service
    Account with **read** access to *The Binnacle* vault: `Bearing`, `Purser`,
-   `Meridian`, `The Binnacle`. Each token is also stored in the vault as an API
+   `Meridian`, `Tally`, `MadeWild`, `The Binnacle`. Each token is also stored in the vault as an API
    Credential item titled `Service Account Auth Token: <App>`.
 2. Store one token by pasting it (from any app venv):
    ```bash
