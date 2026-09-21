@@ -205,7 +205,8 @@ def test_cli_bootstrap_provisions_siblings(tmp_path, monkeypatch, capsys):
     vault = {"Service Account Auth Token: Bearing": {"credential": "ops_bearing"},
              "Service Account Auth Token: Meridian": {"credential": "ops_meridian"},
              "Service Account Auth Token: Binnacle": {"credential": "ops_binnacle"},
-             "Service Account Auth Token: Tally": {"credential": "ops_tally"}}
+             "Service Account Auth Token: Tally": {"credential": "ops_tally"},
+             "Service Account Auth Token: MadeWild": {"credential": "ops_madewild"}}
 
     async def fake_get_field(self, title, field_title):
         return vault[title][field_title]
@@ -217,6 +218,12 @@ def test_cli_bootstrap_provisions_siblings(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(ba.OnePasswordClient, "get_field", fake_get_field)
     monkeypatch.setattr(ba.OnePasswordClient, "check", fake_check)
     assert main(["bootstrap", "--via", "purser"]) == 0
-    assert sorted(TokenStore().available()) == ["bearing", "binnacle", "meridian", "purser", "tally"]
+    assert sorted(TokenStore().available()) == ["bearing", "binnacle", "madewild", "meridian", "purser", "tally"]
     assert (tmp_path / "bearing").read_text().strip() == "ops_bearing"
     assert "[OK]" in capsys.readouterr().out
+
+
+def test_every_app_has_a_token_item_name():
+    """A new APPS entry without a vault title would KeyError in bootstrap."""
+    from shared_utils.binnacle_auth import APPS, TOKEN_ITEM_NAMES
+    assert set(TOKEN_ITEM_NAMES) == set(APPS)

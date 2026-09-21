@@ -20,9 +20,14 @@ venv/bin/pip install -e "../shared-utils[browser]"  # + Playwright automation
 - `binnacle-auth doctor` (installed console script) is the mechanical check. Run it before assuming a credential problem is elsewhere.
 
 ## Tests
+The repo has its own `venv` (gitignored) on the same Python the apps use — 3.12.13 via pyenv:
 ```bash
-../Purser/venv/bin/python -m pytest -q tests   # no venv of its own; any app venv works
+~/.pyenv/versions/3.12.13/bin/python -m venv venv
+venv/bin/pip install -e ".[browser,dev]"
+venv/bin/pytest -q
 ```
+Run them after any change here: every app imports this checkout. The apps pin their own copies of
+third-party packages, so upgrading a dependency here does not reach them until their venvs are updated.
 
 ## Remote
 `origin` is `github.com/strique9/shared-utils`. Local checkouts are the runtime source; push after changes so a fresh clone matches.

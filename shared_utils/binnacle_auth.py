@@ -46,6 +46,7 @@ __all__ = [
     "fetch_login_credential",
     "fetch_api_credential",
     "fetch_field",
+    "TOKEN_ITEM_NAMES",
     "TOKEN_ITEM_TITLE",
     "main",
 ]
@@ -375,6 +376,18 @@ def _cmd_store(store: TokenStore, args) -> int:
 # with this title pattern, so one stored token can provision the rest.
 TOKEN_ITEM_TITLE = "Service Account Auth Token: {app}"
 
+# The <App> part of each title, as spelled in the vault. Title lookup is exact,
+# so this cannot be derived with str.capitalize(): "madewild" -> "Madewild"
+# misses the real item "MadeWild".
+TOKEN_ITEM_NAMES = {
+    "binnacle": "Binnacle",
+    "bearing": "Bearing",
+    "meridian": "Meridian",
+    "purser": "Purser",
+    "tally": "Tally",
+    "madewild": "MadeWild",
+}
+
 
 def _cmd_bootstrap(store: TokenStore, args) -> int:
     source = OnePasswordClient(args.via, vault=args.vault, token_store=store)
@@ -384,7 +397,7 @@ def _cmd_bootstrap(store: TokenStore, args) -> int:
         return 0
     failures = 0
     for app in targets:
-        title = TOKEN_ITEM_TITLE.format(app=app.capitalize())
+        title = TOKEN_ITEM_TITLE.format(app=TOKEN_ITEM_NAMES[app])
         try:
             token = asyncio.run(source.get_field(title, "credential"))
             probe = OnePasswordClient(app, vault=args.vault, token_store=_StaticStore(store, token))
