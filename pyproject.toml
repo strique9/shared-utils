@@ -4,13 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "shared-utils"
-version = "0.2.0"
-description = "Shared utilities across The Binnacle apps: credential access, browser automation"
+version = "0.3.0"
+description = "Shared utilities across The Binnacle apps: credential access, Cloudflare Access identity, browser automation"
 requires-python = ">=3.10"
 # Pinned here, once, for every app. The SDK renamed list_all() to list() in 0.2+.
 dependencies = ["onepassword-sdk==0.4.1"]
 
 [project.optional-dependencies]
+access = ["PyJWT[crypto]>=2.9"]
 browser = ["playwright>=1.40"]
 dev = ["pytest"]
 
