@@ -206,7 +206,8 @@ def test_cli_bootstrap_provisions_siblings(tmp_path, monkeypatch, capsys):
              "Service Account Auth Token: Meridian": {"credential": "ops_meridian"},
              "Service Account Auth Token: Binnacle": {"credential": "ops_binnacle"},
              "Service Account Auth Token: Tally": {"credential": "ops_tally"},
-             "Service Account Auth Token: MadeWild": {"credential": "ops_madewild"}}
+             "Service Account Auth Token: MadeWild": {"credential": "ops_madewild"},
+             "Service Account Auth Token: Packet": {"credential": "ops_packet"}}
 
     async def fake_get_field(self, title, field_title):
         return vault[title][field_title]
@@ -218,7 +219,7 @@ def test_cli_bootstrap_provisions_siblings(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(ba.OnePasswordClient, "get_field", fake_get_field)
     monkeypatch.setattr(ba.OnePasswordClient, "check", fake_check)
     assert main(["bootstrap", "--via", "purser"]) == 0
-    assert sorted(TokenStore().available()) == ["bearing", "binnacle", "madewild", "meridian", "purser", "tally"]
+    assert sorted(TokenStore().available()) == ["bearing", "binnacle", "madewild", "meridian", "packet", "purser", "tally"]
     assert (tmp_path / "bearing").read_text().strip() == "ops_bearing"
     assert "[OK]" in capsys.readouterr().out
 
